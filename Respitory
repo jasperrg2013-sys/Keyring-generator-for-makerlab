@@ -1,0 +1,25 @@
+makerworld-keychain-generator/
+│
+├── generator.scad
+├── README.md
+├── LICENSE
+├── CHANGELOG.md
+├── .gitignore
+│
+├── src/
+│   ├── config.scad
+│   ├── constants.scad
+│   ├── utils.scad
+│   ├── validation.scad
+│   │
+│   ├── shapes/
+│   ├── text/
+│   ├── icons/
+│   ├── borders/
+│   ├── patterns/
+│   ├── layout/
+│   ├── print/
+│   └── presets/
+│
+├── examples/
+└── docs/
