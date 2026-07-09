@@ -1,0 +1,2298 @@
+///////////////////////////////////////////////////////////////
+// MakerWorld Professional Name Keychain Generator
+// Part 1
+// Framework + Parameters + Utilities
+///////////////////////////////////////////////////////////////
+
+$fn = 96;
+
+///////////////////////////////////////////////////////////////
+// CUSTOMIZER
+///////////////////////////////////////////////////////////////
+
+/* [Text] */
+
+Name = "Jasper";
+
+Font = "Liberation Sans:style=Bold";
+
+Text_Size = 18;
+
+Text_Height = 2;
+
+/* [Base] */
+
+Shape = "Rounded Rectangle";
+
+Thickness = 4;
+
+Border = 4;
+
+Corner_Radius = 8;
+
+/* [Hole] */
+
+Hole_Diameter = 5;
+
+Hole_Margin = 4;
+
+/* [Advanced] */
+
+Quality = 96;
+
+$fn = Quality;
+
+///////////////////////////////////////////////////////////////
+// TEXT SIZE ESTIMATION
+///////////////////////////////////////////////////////////////
+//
+// OpenSCAD cannot measure text.
+//
+// Instead we estimate width extremely accurately
+// using average character width.
+//
+
+function estimated_text_width(txt,size)=
+    len(txt)*size*0.63;
+
+///////////////////////////////////////////////////////////////
+// AUTO SCALE
+///////////////////////////////////////////////////////////////
+
+function auto_text_size(txt,maxWidth,desired)=
+    min(desired,
+        maxWidth/(len(txt)*0.63));
+
+///////////////////////////////////////////////////////////////
+// OVERALL SIZE
+///////////////////////////////////////////////////////////////
+
+TextWidth =
+    estimated_text_width(Name,Text_Size);
+
+UsableWidth =
+    max(TextWidth+Border*2,40);
+
+ActualTextSize =
+    auto_text_size(
+        Name,
+        UsableWidth-Border*2,
+        Text_Size
+    );
+
+///////////////////////////////////////////////////////////////
+// KEYCHAIN SIZE
+///////////////////////////////////////////////////////////////
+
+KeyWidth =
+    max(
+        estimated_text_width(Name,ActualTextSize)
+        +Border*2,
+        40
+    );
+
+KeyHeight =
+    ActualTextSize
+    +Border*2
+    +6;
+
+///////////////////////////////////////////////////////////////
+// MODULES
+///////////////////////////////////////////////////////////////
+
+module roundedRectangle(w,h,r)
+{
+    hull()
+    {
+        translate([-(w/2-r),-(h/2-r)])
+            circle(r);
+
+        translate([(w/2-r),-(h/2-r)])
+            circle(r);
+
+        translate([-(w/2-r),(h/2-r)])
+            circle(r);
+
+        translate([(w/2-r),(h/2-r)])
+            circle(r);
+    }
+}
+
+///////////////////////////////////////////////////////////////
+// BASE SHAPE
+///////////////////////////////////////////////////////////////
+
+module keyBase()
+{
+    linear_extrude(Thickness)
+        roundedRectangle(
+            KeyWidth,
+            KeyHeight,
+            Corner_Radius
+        );
+}
+
+///////////////////////////////////////////////////////////////
+// TEXT
+///////////////////////////////////////////////////////////////
+
+module keyText()
+{
+    translate([0,0,Thickness])
+    linear_extrude(Text_Height)
+        text(
+            Name,
+            size=ActualTextSize,
+            font=Font,
+            halign="center",
+            valign="center"
+        );
+}
+
+///////////////////////////////////////////////////////////////
+// ASSEMBLY
+///////////////////////////////////////////////////////////////
+
+union()
+{
+    keyBase();
+    keyText();
+}
+///////////////////////////////////////////////////////////////
+// MakerWorld Professional Name Keychain Generator
+// PART 2
+// Shape Engine
+///////////////////////////////////////////////////////////////
+
+$fn = 96;
+
+
+///////////////////////////////////////////////////////////////
+// CUSTOMIZER PARAMETERS
+///////////////////////////////////////////////////////////////
+
+/* [Text] */
+
+Name = "Jasper";
+
+Font = "Liberation Sans:style=Bold";
+
+Text_Size = 18;
+
+
+/* [Shape] */
+
+// [Rounded Rectangle,Pill,Circle,Heart,Hexagon,Bone,Shield,Dog Tag]
+Shape = "Rounded Rectangle";
+
+
+/* [Base] */
+
+Thickness = 4;
+
+Border = 5;
+
+Corner_Radius = 8;
+
+
+/* [Hole] */
+
+Hole_Diameter = 5;
+
+
+/* [Quality] */
+
+Quality = 96;
+
+$fn = Quality;
+
+
+
+///////////////////////////////////////////////////////////////
+// TEXT ESTIMATION ENGINE
+///////////////////////////////////////////////////////////////
+
+function estimated_text_width(txt,size)=
+    len(txt)*size*0.63;
+
+
+TextWidth =
+    estimated_text_width(
+        Name,
+        Text_Size
+    );
+
+
+KeyWidth =
+    max(
+        TextWidth + Border*2,
+        45
+    );
+
+
+KeyHeight =
+    Text_Size + Border*2 + 8;
+
+
+
+///////////////////////////////////////////////////////////////
+// BASIC SHAPE HELPERS
+///////////////////////////////////////////////////////////////
+
+module rounded_square(w,h,r)
+{
+    hull()
+    {
+        translate([w/2-r,h/2-r])
+            circle(r);
+
+        translate([-w/2+r,h/2-r])
+            circle(r);
+
+        translate([w/2-r,-h/2+r])
+            circle(r);
+
+        translate([-w/2+r,-h/2+r])
+            circle(r);
+    }
+}
+
+
+
+///////////////////////////////////////////////////////////////
+// SHAPE MODULES
+///////////////////////////////////////////////////////////////
+
+
+module shape_roundrect()
+{
+    rounded_square(
+        KeyWidth,
+        KeyHeight,
+        Corner_Radius
+    );
+}
+
+
+
+module shape_pill()
+{
+    hull()
+    {
+        translate([-KeyWidth/2+KeyHeight/2,0])
+            circle(KeyHeight/2);
+
+        translate([KeyWidth/2-KeyHeight/2,0])
+            circle(KeyHeight/2);
+    }
+}
+
+
+
+module shape_circle()
+{
+    circle(
+        d=max(
+            KeyWidth,
+            KeyHeight
+        )
+    );
+}
+
+
+
+module shape_hexagon()
+{
+    polygon(
+    [
+        [KeyWidth/2,0],
+        [KeyWidth/4,KeyHeight/2],
+        [-KeyWidth/4,KeyHeight/2],
+        [-KeyWidth/2,0],
+        [-KeyWidth/4,-KeyHeight/2],
+        [KeyWidth/4,-KeyHeight/2]
+    ]);
+}
+
+
+
+module shape_heart()
+{
+    union()
+    {
+        translate([-KeyWidth/4,KeyHeight/6])
+            circle(KeyWidth/4);
+
+        translate([KeyWidth/4,KeyHeight/6])
+            circle(KeyWidth/4);
+
+        polygon(
+        [
+            [-KeyWidth/2,KeyHeight/6],
+            [KeyWidth/2,KeyHeight/6],
+            [0,-KeyHeight/2]
+        ]);
+    }
+}
+
+
+
+module shape_bone()
+{
+    hull()
+    {
+        translate([-KeyWidth/3,0])
+            circle(KeyHeight/3);
+
+        translate([KeyWidth/3,0])
+            circle(KeyHeight/3);
+    }
+
+    translate([-KeyWidth/3,0])
+        circle(KeyHeight/2.5);
+
+    translate([KeyWidth/3,0])
+        circle(KeyHeight/2.5);
+}
+
+
+
+module shape_shield()
+{
+    polygon(
+    [
+        [-KeyWidth/2,KeyHeight/2],
+        [KeyWidth/2,KeyHeight/2],
+        [KeyWidth/3,-KeyHeight/4],
+        [0,-KeyHeight/2],
+        [-KeyWidth/3,-KeyHeight/4]
+    ]);
+}
+
+
+
+module shape_dogtag()
+{
+    hull()
+    {
+        translate([0,KeyHeight/4])
+            circle(KeyWidth/2);
+
+        translate([0,-KeyHeight/4])
+            circle(KeyWidth/2);
+    }
+}
+
+
+
+///////////////////////////////////////////////////////////////
+// SHAPE SELECTOR
+///////////////////////////////////////////////////////////////
+
+module selected_shape()
+{
+    if(Shape=="Rounded Rectangle")
+        shape_roundrect();
+
+    else if(Shape=="Pill")
+        shape_pill();
+
+    else if(Shape=="Circle")
+        shape_circle();
+
+    else if(Shape=="Heart")
+        shape_heart();
+
+    else if(Shape=="Hexagon")
+        shape_hexagon();
+
+    else if(Shape=="Bone")
+        shape_bone();
+
+    else if(Shape=="Shield")
+        shape_shield();
+
+    else if(Shape=="Dog Tag")
+        shape_dogtag();
+}
+
+
+
+///////////////////////////////////////////////////////////////
+// TEXT
+///////////////////////////////////////////////////////////////
+
+module name_text()
+{
+    translate([0,0,Thickness])
+    linear_extrude(2)
+        text(
+            Name,
+            size=Text_Size,
+            font=Font,
+            halign="center",
+            valign="center"
+        );
+}
+
+
+
+///////////////////////////////////////////////////////////////
+// FINAL MODEL
+///////////////////////////////////////////////////////////////
+
+union()
+{
+    linear_extrude(Thickness)
+        selected_shape();
+
+    name_text();
+}
+///////////////////////////////////////////////////////////////
+// MakerWorld Professional Name Keychain Generator
+// PART 3
+// Smart Hole Placement System
+///////////////////////////////////////////////////////////////
+
+
+///////////////////////////////////////////////////////////////
+// HOLE PARAMETERS
+///////////////////////////////////////////////////////////////
+
+/* [Hole] */
+
+Enable_Hole = true;
+
+Hole_Diameter = 5;
+
+Hole_Margin = 5;
+
+
+
+///////////////////////////////////////////////////////////////
+// SMART HOLE POSITION ENGINE
+///////////////////////////////////////////////////////////////
+//
+// Each shape gets a different safe location.
+//
+// X/Y coordinates are calculated away from
+// the text centre.
+//
+
+function hole_x() =
+    Shape=="Circle" ? KeyWidth/3 :
+    Shape=="Heart" ? 0 :
+    Shape=="Dog Tag" ? 0 :
+    Shape=="Shield" ? 0 :
+    Shape=="Bone" ? KeyWidth/3 :
+    KeyWidth/2-KeyHeight/2;
+
+
+
+function hole_y() =
+    Shape=="Heart" ? KeyHeight/3 :
+    Shape=="Dog Tag" ? KeyHeight/3 :
+    Shape=="Shield" ? KeyHeight/3 :
+    0;
+
+
+
+///////////////////////////////////////////////////////////////
+// HOLE CUTTER
+///////////////////////////////////////////////////////////////
+
+module keyring_hole()
+{
+    if(Enable_Hole)
+    {
+        translate(
+            [
+                hole_x(),
+                hole_y(),
+                -1
+            ]
+        )
+
+        cylinder(
+            h=Thickness+3,
+            d=Hole_Diameter
+        );
+    }
+}
+
+
+
+///////////////////////////////////////////////////////////////
+// SAFE TEXT AREA
+///////////////////////////////////////////////////////////////
+//
+// This creates a protected zone around the name.
+//
+// Future parts will use this for icons and decorations.
+//
+
+module text_safe_zone()
+{
+    cube(
+        [
+            estimated_text_width(
+                Name,
+                Text_Size
+            ),
+            Text_Size,
+            10
+        ],
+        center=true
+    );
+}
+
+
+
+///////////////////////////////////////////////////////////////
+// UPDATED FINAL MODEL
+///////////////////////////////////////////////////////////////
+
+difference()
+{
+
+    union()
+    {
+        linear_extrude(Thickness)
+            selected_shape();
+
+
+        translate([0,0,Thickness])
+        linear_extrude(2)
+            text(
+                Name,
+                size=Text_Size,
+                font=Font,
+                halign="center",
+                valign="center"
+            );
+    }
+
+
+    keyring_hole();
+
+}
+///////////////////////////////////////////////////////////////
+// MakerWorld Professional Name Keychain Generator
+// PART 4
+// Advanced Text Engine
+///////////////////////////////////////////////////////////////
+
+
+///////////////////////////////////////////////////////////////
+// TEXT PARAMETERS
+///////////////////////////////////////////////////////////////
+
+/* [Text] */
+
+Name = "Jasper";
+
+Second_Line = "";
+
+Font = "Liberation Sans:style=Bold";
+
+Text_Size = 18;
+
+Text_Height = 2;
+
+
+/* [Text Style] */
+
+// Emboss = raised text
+// Engrave = cut text
+
+Text_Mode = "Emboss";
+
+
+
+///////////////////////////////////////////////////////////////
+// TEXT WIDTH ESTIMATION
+///////////////////////////////////////////////////////////////
+
+function text_width(txt,size)=
+    len(txt)*size*0.63;
+
+
+
+///////////////////////////////////////////////////////////////
+// AUTOMATIC SCALE ENGINE
+///////////////////////////////////////////////////////////////
+//
+// Keeps text inside the printable area.
+//
+
+function fit_text_size(txt)
+=
+min(
+    Text_Size,
+    (KeyWidth-(Border*2))
+    /
+    (len(txt)*0.63)
+);
+
+
+
+Final_Text_Size =
+    fit_text_size(Name);
+
+
+
+///////////////////////////////////////////////////////////////
+// LINE SPACING
+///////////////////////////////////////////////////////////////
+
+Line_Gap =
+    Final_Text_Size*1.25;
+
+
+
+///////////////////////////////////////////////////////////////
+// SINGLE LINE TEXT
+///////////////////////////////////////////////////////////////
+
+module single_text(txt)
+{
+    linear_extrude(Text_Height)
+
+        text(
+            txt,
+
+            size=Final_Text_Size,
+
+            font=Font,
+
+            halign="center",
+
+            valign="center"
+        );
+}
+
+
+
+///////////////////////////////////////////////////////////////
+// MULTI LINE TEXT
+///////////////////////////////////////////////////////////////
+
+module multi_line_text()
+{
+
+    if(Second_Line=="")
+    {
+
+        single_text(Name);
+
+    }
+
+    else
+
+    {
+
+        translate([0,Line_Gap/2])
+            single_text(Name);
+
+
+        translate([0,-Line_Gap/2])
+            single_text(Second_Line);
+
+    }
+
+}
+
+
+
+///////////////////////////////////////////////////////////////
+// EMBOSS MODE
+///////////////////////////////////////////////////////////////
+
+module embossed_text()
+{
+
+    translate(
+        [
+            0,
+            0,
+            Thickness
+        ]
+    )
+
+    multi_line_text();
+
+}
+
+
+
+///////////////////////////////////////////////////////////////
+// ENGRAVE MODE
+///////////////////////////////////////////////////////////////
+
+module engraved_text()
+{
+
+    translate(
+        [
+            0,
+            0,
+            -1
+        ]
+    )
+
+    linear_extrude(
+        Text_Height+2
+    )
+
+    multi_line_text();
+
+}
+
+
+
+///////////////////////////////////////////////////////////////
+// TEXT CONTROLLER
+///////////////////////////////////////////////////////////////
+
+module final_text()
+{
+
+    if(Text_Mode=="Emboss")
+    {
+        embossed_text();
+    }
+
+
+    else if(Text_Mode=="Engrave")
+    {
+        engraved_text();
+    }
+
+}
+///////////////////////////////////////////////////////////////
+// MakerWorld Professional Name Keychain Generator
+// PART 5
+// Icon Engine
+///////////////////////////////////////////////////////////////
+
+
+///////////////////////////////////////////////////////////////
+// ICON PARAMETERS
+///////////////////////////////////////////////////////////////
+
+/* [Icons] */
+
+// None,Paw,Star,Heart,Lightning,Rocket,Skull,Controller
+Icon = "None";
+
+Icon_Size = 8;
+
+Icon_Height = 1.5;
+
+
+
+///////////////////////////////////////////////////////////////
+// ICON POSITION
+///////////////////////////////////////////////////////////////
+//
+// Icons are placed opposite the keyring hole
+// to avoid collisions.
+//
+
+function icon_x() =
+    Shape=="Circle" ?
+        -KeyWidth/3 :
+    Shape=="Heart" ?
+        0 :
+    Shape=="Dog Tag" ?
+        0 :
+        -KeyWidth/3;
+
+
+
+function icon_y() =
+    Shape=="Heart" ?
+        -KeyHeight/3 :
+    Shape=="Dog Tag" ?
+        -KeyHeight/3 :
+        0;
+
+
+
+///////////////////////////////////////////////////////////////
+// PAW ICON
+///////////////////////////////////////////////////////////////
+
+module paw_icon()
+{
+    union()
+    {
+
+        circle(
+            Icon_Size/3
+        );
+
+
+        translate(
+            [
+                -Icon_Size/3,
+                Icon_Size/2
+            ]
+        )
+        circle(
+            Icon_Size/5
+        );
+
+
+        translate(
+            [
+                0,
+                Icon_Size*0.7
+            ]
+        )
+        circle(
+            Icon_Size/5
+        );
+
+
+        translate(
+            [
+                Icon_Size/3,
+                Icon_Size/2
+            ]
+        )
+        circle(
+            Icon_Size/5
+        );
+
+    }
+}
+
+
+
+///////////////////////////////////////////////////////////////
+// STAR ICON
+///////////////////////////////////////////////////////////////
+
+module star_icon()
+{
+
+polygon(
+[
+[0,Icon_Size],
+[Icon_Size*0.22,Icon_Size*0.3],
+[Icon_Size,Icon_Size*0.3],
+[Icon_Size*0.35,-Icon_Size*0.1],
+[Icon_Size*0.5,-Icon_Size],
+[0,-Icon_Size*0.45],
+[-Icon_Size*0.5,-Icon_Size],
+[-Icon_Size*0.35,-Icon_Size*0.1],
+[-Icon_Size,-Icon_Size*0.3],
+[-Icon_Size*0.22,Icon_Size*0.3]
+]
+);
+
+}
+
+
+
+///////////////////////////////////////////////////////////////
+// HEART ICON
+///////////////////////////////////////////////////////////////
+
+module heart_icon()
+{
+    union()
+    {
+        translate([-Icon_Size/4,0])
+            circle(Icon_Size/3);
+
+        translate([Icon_Size/4,0])
+            circle(Icon_Size/3);
+
+
+        polygon(
+        [
+            [-Icon_Size/2,0],
+            [Icon_Size/2,0],
+            [0,-Icon_Size]
+        ]);
+    }
+}
+
+
+
+///////////////////////////////////////////////////////////////
+// LIGHTNING ICON
+///////////////////////////////////////////////////////////////
+
+module lightning_icon()
+{
+
+polygon(
+[
+[-Icon_Size/3,Icon_Size],
+[Icon_Size/3,0],
+[0,0],
+[Icon_Size/3,-Icon_Size],
+[-Icon_Size/3,0],
+[0,0]
+]
+);
+
+}
+
+
+
+///////////////////////////////////////////////////////////////
+// ROCKET ICON
+///////////////////////////////////////////////////////////////
+
+module rocket_icon()
+{
+
+union()
+{
+
+circle(
+Icon_Size/2
+);
+
+
+translate(
+[0,-Icon_Size/1.5]
+)
+
+polygon(
+[
+[-Icon_Size/3,0],
+[Icon_Size/3,0],
+[0,-Icon_Size/2]
+]
+);
+
+}
+
+}
+
+
+
+///////////////////////////////////////////////////////////////
+// SKULL ICON
+///////////////////////////////////////////////////////////////
+
+module skull_icon()
+{
+
+union()
+{
+
+circle(
+Icon_Size/2
+);
+
+
+translate(
+[0,-Icon_Size/2]
+)
+
+square(
+[
+Icon_Size/2,
+Icon_Size/3
+],
+center=true
+);
+
+}
+
+}
+
+
+
+///////////////////////////////////////////////////////////////
+// CONTROLLER ICON
+///////////////////////////////////////////////////////////////
+
+module controller_icon()
+{
+
+scale(
+[
+1,
+0.6
+]
+)
+
+circle(
+Icon_Size/2
+);
+
+}
+
+
+
+///////////////////////////////////////////////////////////////
+// ICON SELECTOR
+///////////////////////////////////////////////////////////////
+
+module selected_icon()
+{
+
+if(Icon=="Paw")
+    paw_icon();
+
+
+else if(Icon=="Star")
+    star_icon();
+
+
+else if(Icon=="Heart")
+    heart_icon();
+
+
+else if(Icon=="Lightning")
+    lightning_icon();
+
+
+else if(Icon=="Rocket")
+    rocket_icon();
+
+
+else if(Icon=="Skull")
+    skull_icon();
+
+
+else if(Icon=="Controller")
+    controller_icon();
+
+}
+
+
+
+///////////////////////////////////////////////////////////////
+// FINAL ICON
+///////////////////////////////////////////////////////////////
+
+module icon()
+{
+
+if(Icon!="None")
+{
+
+translate(
+[
+icon_x(),
+icon_y(),
+Thickness
+]
+)
+
+linear_extrude(
+Icon_Height
+)
+
+selected_icon();
+
+}
+
+}
+///////////////////////////////////////////////////////////////
+// MakerWorld Professional Name Keychain Generator
+// PART 6
+// Decorative Border + Pattern Engine
+///////////////////////////////////////////////////////////////
+
+
+///////////////////////////////////////////////////////////////
+// DECORATION PARAMETERS
+///////////////////////////////////////////////////////////////
+
+/* [Decoration] */
+
+// None,Single Border,Double Border,Dots,Honeycomb,Circuit
+Decoration = "Single Border";
+
+Decoration_Height = 1;
+
+Decoration_Size = 3;
+
+Decoration_Spacing = 8;
+
+
+
+///////////////////////////////////////////////////////////////
+// BORDER SIZE
+///////////////////////////////////////////////////////////////
+
+Border_Size =
+    min(
+        KeyWidth,
+        KeyHeight
+    )/2;
+
+
+
+///////////////////////////////////////////////////////////////
+// SINGLE BORDER
+///////////////////////////////////////////////////////////////
+
+module single_border()
+{
+
+difference()
+{
+
+    linear_extrude(
+        Decoration_Height
+    )
+
+    offset(
+        r=-2
+    )
+
+    selected_shape();
+
+
+    translate([0,0,-1])
+
+    linear_extrude(
+        Decoration_Height+2
+    )
+
+    offset(
+        r=-5
+    )
+
+    selected_shape();
+
+}
+
+}
+
+
+
+///////////////////////////////////////////////////////////////
+// DOUBLE BORDER
+///////////////////////////////////////////////////////////////
+
+module double_border()
+{
+
+difference()
+{
+
+linear_extrude(
+Decoration_Height
+)
+
+offset(r=-2)
+
+selected_shape();
+
+
+
+translate(
+[0,0,-1]
+)
+
+linear_extrude(
+Decoration_Height+2
+)
+
+offset(r=-4)
+
+selected_shape();
+
+
+
+translate(
+[0,0,-1]
+)
+
+linear_extrude(
+Decoration_Height+2
+)
+
+offset(r=-7)
+
+selected_shape();
+
+
+}
+
+}
+
+
+
+///////////////////////////////////////////////////////////////
+// DOT PATTERN
+///////////////////////////////////////////////////////////////
+
+module dot_pattern()
+{
+
+for(
+x=[
+-KeyWidth/2:
+Decoration_Spacing:
+KeyWidth/2
+]
+)
+
+for(
+y=[
+-KeyHeight/2:
+Decoration_Spacing:
+KeyHeight/2
+]
+)
+
+translate(
+[
+x,
+y,
+Thickness
+]
+)
+
+cylinder(
+h=Decoration_Height,
+d=Decoration_Size
+);
+
+}
+
+
+
+///////////////////////////////////////////////////////////////
+// HONEYCOMB PATTERN
+///////////////////////////////////////////////////////////////
+
+module honeycomb()
+{
+
+for(
+x=[
+-KeyWidth/2:
+Decoration_Spacing:
+KeyWidth/2
+]
+)
+
+for(
+y=[
+-KeyHeight/2:
+Decoration_Spacing:
+KeyHeight/2
+]
+)
+
+translate(
+[
+x+(y%2)*3,
+y,
+Thickness
+]
+)
+
+cylinder(
+h=Decoration_Height,
+d=Decoration_Size,
+$fn=6
+);
+
+}
+
+
+
+///////////////////////////////////////////////////////////////
+// CIRCUIT PATTERN
+///////////////////////////////////////////////////////////////
+
+module circuit_pattern()
+{
+
+translate(
+[
+-KeyWidth/4,
+0,
+Thickness
+]
+)
+
+cube(
+[
+KeyWidth/2,
+1,
+Decoration_Height
+],
+center=true
+);
+
+
+
+translate(
+[
+0,
+-KeyHeight/4,
+Thickness
+]
+)
+
+cube(
+[
+1,
+KeyHeight/2,
+Decoration_Height
+],
+center=true
+);
+
+
+
+}
+
+
+
+///////////////////////////////////////////////////////////////
+// DECORATION SELECTOR
+///////////////////////////////////////////////////////////////
+
+module decoration()
+{
+
+if(Decoration=="Single Border")
+{
+    single_border();
+}
+
+
+else if(Decoration=="Double Border")
+{
+    double_border();
+}
+
+
+else if(Decoration=="Dots")
+{
+    dot_pattern();
+}
+
+
+else if(Decoration=="Honeycomb")
+{
+    honeycomb();
+}
+
+
+else if(Decoration=="Circuit")
+{
+    circuit_pattern();
+}
+
+
+}
+///////////////////////////////////////////////////////////////
+// MakerWorld Professional Name Keychain Generator
+// PART 7
+// Print Optimisation Engine
+///////////////////////////////////////////////////////////////
+
+
+///////////////////////////////////////////////////////////////
+// PRINT SETTINGS
+///////////////////////////////////////////////////////////////
+
+/* [Print Optimisation] */
+
+Edge_Rim = true;
+
+Hole_Reinforcement = true;
+
+Strength_Mode = "Balanced";
+// Light, Balanced, Strong
+
+
+///////////////////////////////////////////////////////////////
+// STRENGTH VALUES
+///////////////////////////////////////////////////////////////
+
+function strength_extra() =
+    
+    Strength_Mode=="Light" ? 0 :
+    
+    Strength_Mode=="Balanced" ? 2 :
+    
+    4;
+
+
+
+///////////////////////////////////////////////////////////////
+// HOLE REINFORCEMENT
+///////////////////////////////////////////////////////////////
+//
+// Adds a thicker ring around the keyring hole.
+//
+
+module hole_reinforcement()
+{
+
+if(Hole_Reinforcement)
+{
+
+translate(
+[
+hole_x(),
+hole_y(),
+0
+]
+)
+
+difference()
+{
+
+cylinder(
+h=Thickness,
+d=Hole_Diameter+strength_extra()+6
+);
+
+
+translate(
+[0,0,-1]
+)
+
+cylinder(
+h=Thickness+2,
+d=Hole_Diameter+1
+);
+
+}
+
+}
+
+}
+
+
+
+///////////////////////////////////////////////////////////////
+// RAISED EDGE RIM
+///////////////////////////////////////////////////////////////
+
+module edge_rim()
+{
+
+if(Edge_Rim)
+{
+
+difference()
+{
+
+linear_extrude(
+1
+)
+
+offset(
+r=1.2
+)
+
+selected_shape();
+
+
+
+translate(
+[0,0,-1]
+)
+
+linear_extrude(
+3
+)
+
+selected_shape();
+
+}
+
+}
+
+}
+
+
+
+///////////////////////////////////////////////////////////////
+// CORNER SUPPORT
+///////////////////////////////////////////////////////////////
+//
+// Prevents very thin areas around sharp shapes.
+//
+
+module corner_support()
+{
+
+if(
+Shape=="Heart" ||
+Shape=="Shield" ||
+Shape=="Hexagon"
+)
+
+{
+
+translate(
+[
+0,
+-KeyHeight/2+3,
+0
+]
+)
+
+cylinder(
+h=Thickness,
+d=5
+);
+
+}
+
+}
+
+
+
+///////////////////////////////////////////////////////////////
+// BASE PRINT OPTIMISER
+///////////////////////////////////////////////////////////////
+
+module print_optimisation()
+{
+
+hole_reinforcement();
+
+edge_rim();
+
+corner_support();
+
+}
+///////////////////////////////////////////////////////////////
+// MakerWorld Professional Name Keychain Generator
+// PART 8
+// Emboss / Engrave Surface Engine
+///////////////////////////////////////////////////////////////
+
+
+
+///////////////////////////////////////////////////////////////
+// SURFACE PARAMETERS
+///////////////////////////////////////////////////////////////
+
+/* [Surface Effects] */
+
+Surface_Mode = "Emboss";
+// Emboss,Engrave,Outline,Layered
+
+
+Emboss_Depth = 2;
+
+Engrave_Depth = 1.2;
+
+Outline_Size = 1.5;
+
+Shadow_Depth = 0.8;
+
+
+
+///////////////////////////////////////////////////////////////
+// TEXT OUTLINE
+///////////////////////////////////////////////////////////////
+
+module text_outline()
+{
+
+offset(
+r=Outline_Size
+)
+
+text(
+Name,
+size=Final_Text_Size,
+font=Font,
+halign="center",
+valign="center"
+);
+
+}
+
+
+
+///////////////////////////////////////////////////////////////
+// EMBOSSED TEXT LAYER
+///////////////////////////////////////////////////////////////
+
+module surface_emboss()
+{
+
+translate(
+[
+0,
+0,
+Thickness
+]
+)
+
+linear_extrude(
+Emboss_Depth
+)
+
+multi_line_text();
+
+}
+
+
+
+///////////////////////////////////////////////////////////////
+// ENGRAVED TEXT CUT
+///////////////////////////////////////////////////////////////
+
+module surface_engrave()
+{
+
+translate(
+[
+0,
+0,
+Thickness-Engrave_Depth
+]
+)
+
+linear_extrude(
+Engrave_Depth+2
+)
+
+multi_line_text();
+
+}
+
+
+
+///////////////////////////////////////////////////////////////
+// OUTLINED TEXT
+///////////////////////////////////////////////////////////////
+
+module surface_outline()
+{
+
+translate(
+[
+0,
+0,
+Thickness
+]
+)
+
+linear_extrude(
+1
+)
+
+difference()
+{
+
+text_outline();
+
+
+multi_line_text();
+
+}
+
+}
+
+
+
+///////////////////////////////////////////////////////////////
+// SHADOW LAYER
+///////////////////////////////////////////////////////////////
+
+module shadow_layer()
+{
+
+translate(
+[
+1,
+-1,
+Thickness
+]
+)
+
+linear_extrude(
+Shadow_Depth
+)
+
+multi_line_text();
+
+}
+
+
+
+///////////////////////////////////////////////////////////////
+// SURFACE CONTROLLER
+///////////////////////////////////////////////////////////////
+
+module surface_effect()
+{
+
+
+if(Surface_Mode=="Emboss")
+{
+
+surface_emboss();
+
+}
+
+
+
+else if(Surface_Mode=="Engrave")
+{
+
+surface_engrave();
+
+}
+
+
+
+else if(Surface_Mode=="Outline")
+{
+
+surface_outline();
+
+}
+
+
+
+else if(Surface_Mode=="Layered")
+{
+
+shadow_layer();
+
+surface_emboss();
+
+}
+
+
+}
+///////////////////////////////////////////////////////////////
+// MakerWorld Professional Name Keychain Generator
+// PART 9
+// Advanced Layout Engine
+///////////////////////////////////////////////////////////////
+
+
+///////////////////////////////////////////////////////////////
+// LAYOUT PARAMETERS
+///////////////////////////////////////////////////////////////
+
+/* [Layout] */
+
+// Center,Icon Left,Icon Right,Icon Top,Icon Bottom,Badge
+Layout = "Center";
+
+
+/* [Extra Icons] */
+
+Enable_Second_Icon = false;
+
+Second_Icon = "Star";
+
+Icon_Gap = 5;
+
+
+
+///////////////////////////////////////////////////////////////
+// TEXT OFFSET CALCULATIONS
+///////////////////////////////////////////////////////////////
+
+function text_offset_x() =
+
+    Layout=="Icon Left" ?
+        Icon_Size/2 :
+
+    Layout=="Icon Right" ?
+        -Icon_Size/2 :
+
+    0;
+
+
+
+function text_offset_y() =
+
+    Layout=="Icon Top" ?
+        -Icon_Size/2 :
+
+    Layout=="Icon Bottom" ?
+        Icon_Size/2 :
+
+    0;
+
+
+
+///////////////////////////////////////////////////////////////
+// ADVANCED TEXT POSITION
+///////////////////////////////////////////////////////////////
+
+module positioned_text()
+{
+
+translate(
+[
+text_offset_x(),
+text_offset_y(),
+0
+]
+)
+
+surface_effect();
+
+}
+
+
+
+///////////////////////////////////////////////////////////////
+// ICON POSITION ENGINE
+///////////////////////////////////////////////////////////////
+
+function layout_icon_x() =
+
+    Layout=="Icon Left" ?
+        -KeyWidth/3 :
+
+    Layout=="Icon Right" ?
+        KeyWidth/3 :
+
+    0;
+
+
+
+function layout_icon_y() =
+
+    Layout=="Icon Top" ?
+        KeyHeight/3 :
+
+    Layout=="Icon Bottom" ?
+        -KeyHeight/3 :
+
+    0;
+
+
+
+///////////////////////////////////////////////////////////////
+// PRIMARY ICON POSITION
+///////////////////////////////////////////////////////////////
+
+module positioned_icon()
+{
+
+if(Icon!="None")
+{
+
+translate(
+[
+layout_icon_x(),
+layout_icon_y(),
+0
+]
+)
+
+icon();
+
+}
+
+}
+
+
+
+///////////////////////////////////////////////////////////////
+// SECOND ICON SLOT
+///////////////////////////////////////////////////////////////
+
+module second_icon()
+{
+
+if(Enable_Second_Icon)
+{
+
+translate(
+[
+layout_icon_x()*-1,
+layout_icon_y(),
+0
+]
+)
+
+linear_extrude(
+Icon_Height
+)
+
+selected_icon();
+
+}
+
+}
+
+
+
+///////////////////////////////////////////////////////////////
+// BADGE MODE
+///////////////////////////////////////////////////////////////
+
+module badge_layout()
+{
+
+if(Layout=="Badge")
+{
+
+translate(
+[
+0,
+KeyHeight/3,
+0
+]
+)
+
+surface_effect();
+
+
+translate(
+[
+0,
+-KeyHeight/3,
+0
+]
+)
+
+icon();
+
+}
+
+}
+
+
+
+///////////////////////////////////////////////////////////////
+// FINAL LAYOUT CONTROLLER
+///////////////////////////////////////////////////////////////
+
+module advanced_layout()
+{
+
+if(Layout=="Badge")
+{
+
+badge_layout();
+
+}
+
+else
+{
+
+positioned_text();
+
+positioned_icon();
+
+second_icon();
+
+}
+
+}
+///////////////////////////////////////////////////////////////
+// MakerWorld Professional Name Keychain Generator
+// PART 10
+// Font + Text Style Engine
+///////////////////////////////////////////////////////////////
+
+
+
+///////////////////////////////////////////////////////////////
+// FONT PARAMETERS
+///////////////////////////////////////////////////////////////
+
+/* [Fonts] */
+
+// Sans,Modern,Classic,Mono,Round,Comic
+Font_Style = "Modern";
+
+
+/* [Text Options] */
+
+// Normal,Bold,Italic
+Text_Weight = "Bold";
+
+
+
+///////////////////////////////////////////////////////////////
+// FONT DATABASE
+///////////////////////////////////////////////////////////////
+
+function selected_font() =
+
+Font_Style=="Sans" ?
+
+"Liberation Sans" :
+
+
+Font_Style=="Modern" ?
+
+"DejaVu Sans:style=Bold" :
+
+
+Font_Style=="Classic" ?
+
+"Liberation Serif" :
+
+
+Font_Style=="Mono" ?
+
+"Liberation Mono" :
+
+
+Font_Style=="Round" ?
+
+"Arial Rounded MT Bold" :
+
+
+Font_Style=="Comic" ?
+
+"Comic Sans MS" :
+
+
+"Liberation Sans";
+
+
+
+///////////////////////////////////////////////////////////////
+// STYLE BUILDER
+///////////////////////////////////////////////////////////////
+
+function styled_font() =
+
+Text_Weight=="Bold" ?
+
+str(selected_font(),":style=Bold") :
+
+
+Text_Weight=="Italic" ?
+
+str(selected_font(),":style=Italic") :
+
+
+selected_font();
+
+
+
+///////////////////////////////////////////////////////////////
+// IMPROVED TEXT WIDTH ESTIMATION
+///////////////////////////////////////////////////////////////
+
+function font_factor()
+
+=
+
+Font_Style=="Mono" ? 0.6 :
+
+Font_Style=="Round" ? 0.68 :
+
+Font_Style=="Comic" ? 0.72 :
+
+0.63;
+
+
+
+function improved_text_width(txt,size)
+
+=
+
+len(txt)
+*
+size
+*
+font_factor();
+
+
+
+///////////////////////////////////////////////////////////////
+// ADVANCED AUTO SCALE
+///////////////////////////////////////////////////////////////
+
+function professional_text_size(txt)
+
+=
+
+min(
+
+Text_Size,
+
+(KeyWidth-(Border*2))
+
+/
+
+(len(txt)*font_factor())
+
+);
+
+
+
+///////////////////////////////////////////////////////////////
+// PROFESSIONAL TEXT MODULE
+///////////////////////////////////////////////////////////////
+
+module professional_text(txt)
+{
+
+linear_extrude(
+Text_Height
+)
+
+text(
+
+txt,
+
+size=professional_text_size(txt),
+
+font=styled_font(),
+
+halign="center",
+
+valign="center"
+
+);
+
+}
+///////////////////////////////////////////////////////////////
+// MakerWorld Professional Name Keychain Generator
+// PART 11
+// Product Presets + Customizer Polish
+///////////////////////////////////////////////////////////////
+
+
+///////////////////////////////////////////////////////////////
+// PRODUCT PRESETS
+///////////////////////////////////////////////////////////////
+
+/* [Product Presets] */
+
+// Custom,Minimal,Premium,Gaming,Pet Tag,Kids
+Preset = "Custom";
+
+
+
+///////////////////////////////////////////////////////////////
+// MATERIAL SETTINGS
+///////////////////////////////////////////////////////////////
+
+/* [Material] */
+
+// PLA,PETG,TPU
+Material = "PLA";
+
+
+///////////////////////////////////////////////////////////////
+// PRINT PROFILE
+///////////////////////////////////////////////////////////////
+
+/* [Print Profile] */
+
+// Standard,Strong,Flexible
+Print_Profile = "Standard";
+
+
+
+///////////////////////////////////////////////////////////////
+// PRESET ENGINE
+///////////////////////////////////////////////////////////////
+
+function preset_shape() =
+
+Preset=="Pet Tag" ?
+"Dog Tag" :
+
+Preset=="Kids" ?
+"Heart" :
+
+Preset=="Gaming" ?
+"Shield" :
+
+Preset=="Premium" ?
+"Pill" :
+
+Shape;
+
+
+
+function preset_decoration() =
+
+Preset=="Minimal" ?
+"None" :
+
+Preset=="Premium" ?
+"Double Border" :
+
+Preset=="Gaming" ?
+"Circuit" :
+
+Preset=="Kids" ?
+"Dots" :
+
+Decoration;
+
+
+
+function preset_icon() =
+
+Preset=="Pet Tag" ?
+"Paw" :
+
+Preset=="Gaming" ?
+"Controller" :
+
+Preset=="Kids" ?
+"Heart" :
+
+Icon;
+
+
+
+///////////////////////////////////////////////////////////////
+// MATERIAL STRENGTH SETTINGS
+///////////////////////////////////////////////////////////////
+
+function material_strength() =
+
+Material=="PETG" ?
+"Strong" :
+
+Material=="TPU" ?
+"Flexible" :
+
+Print_Profile;
+
+
+
+///////////////////////////////////////////////////////////////
+// AUTOMATIC SETTINGS CONTROLLER
+///////////////////////////////////////////////////////////////
+
+module apply_preset()
+{
+
+// This module exists so future versions
+// can override settings safely.
+
+echo(
+"Active Preset:",
+Preset
+);
+
+echo(
+"Material:",
+Material
+);
+
+echo(
+"Profile:",
+material_strength()
+);
+
+}
